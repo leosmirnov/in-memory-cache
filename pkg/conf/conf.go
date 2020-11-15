@@ -13,7 +13,6 @@ import (
 const configFilename = "config"
 
 func Configure(logger logrus.FieldLogger, cfgFilePath string) (*Conf, error) {
-
 	v := viper.New()
 
 	setDefaults(v)

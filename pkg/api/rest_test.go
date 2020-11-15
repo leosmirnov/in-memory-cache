@@ -32,6 +32,11 @@ func (m *mockKVService) RemoveKey(key string) error {
 	return args.Error(0)
 }
 
+func (m *mockKVService) Close() error {
+	args := m.Called()
+	return args.Error(0)
+}
+
 type httpTests struct {
 	name       string
 	url        string

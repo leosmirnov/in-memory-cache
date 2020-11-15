@@ -37,7 +37,7 @@ func NewService(logger logrus.FieldLogger, cleanupInterval *time.Duration) *Serv
 
 func (s *Service) Close() error {
 	s.quitChan <- struct{}{}
-	s.logger.Debug("inmemory service has successfully shut down")
+	s.logger.Debug("in-memory service has successfully shut down")
 	return nil
 }
 

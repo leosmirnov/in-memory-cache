@@ -16,11 +16,6 @@ import (
 	"github.com/leosmirnov/in-memory-cache/pkg/constants"
 )
 
-const (
-	// valueMaxMemUsage prevents having large values in memory. Sets 1 MB limit.
-	valueMaxMemUsage = 1048576
-)
-
 func (api *API) AddValue(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	rqContentType := r.Header.Get(constants.ContentType)
 	if !strings.Contains(rqContentType, constants.ApplicationJSON) && !strings.Contains(rqContentType, constants.TextJSON) {
@@ -46,10 +41,6 @@ func (api *API) AddValue(w http.ResponseWriter, r *http.Request, _ httprouter.Pa
 	key := body.Key
 	exp := body.Expiration
 	bts := []byte(body.Value)
-	if len(bts) > valueMaxMemUsage {
-		response.WriteError(api.logger, w, http.StatusBadRequest, errors.New("value size limit was exceeded"))
-		return
-	}
 
 	err := api.storageSvc.Set(key, bts, time.Duration(exp)*time.Minute)
 	if err != nil {

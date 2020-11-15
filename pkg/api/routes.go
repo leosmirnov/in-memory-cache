@@ -17,7 +17,7 @@ func (api *API) routes() httpserver.Routes {
 		// API.
 		{Method: http.MethodGet, Path: "/api-docs", Handler: api.apiDocsHandler},
 
-		// health
+		// Health.
 		{Method: http.MethodGet, Path: "/live", Handler: api.liveHandler},
 	}
 }

@@ -4,8 +4,6 @@ import (
 	"context"
 	"errors"
 	"flag"
-	"fmt"
-	"github.com/leosmirnov/in-memory-cache/pkg/storage"
 	"net/http"
 	"os"
 	"os/signal"
@@ -16,6 +14,7 @@ import (
 
 	"github.com/leosmirnov/in-memory-cache/pkg/api"
 	"github.com/leosmirnov/in-memory-cache/pkg/conf"
+	"github.com/leosmirnov/in-memory-cache/pkg/storage"
 	"github.com/leosmirnov/in-memory-cache/pkg/storage/inmemory"
 )
 
@@ -27,7 +26,6 @@ type Service struct {
 	apiService *api.API
 	kvService  storage.Service
 
-	// System fields.
 	logger logrus.FieldLogger
 }
 
@@ -48,8 +46,8 @@ func main() {
 
 	cfg, err := conf.Configure(logger, *cfgPath)
 	if err != nil {
-		// TODO: error handling
-		fmt.Println(err)
+		logrus.Fatalf("failed to read config")
+		return
 	}
 
 	s := Service{
@@ -79,7 +77,6 @@ func main() {
 
 		logger.Info("app gracefully stopped")
 	}
-
 }
 
 func (s *Service) startAPIService() {
