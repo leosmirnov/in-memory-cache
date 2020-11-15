@@ -2,3 +2,6 @@
 .vscode
 *.iml
 .idea/
+
+# dist
+/dist
