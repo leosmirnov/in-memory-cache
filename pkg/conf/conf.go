@@ -44,7 +44,8 @@ func Configure(logger logrus.FieldLogger, cfgFilePath string) (*Conf, error) {
 	}
 
 	cfg := &Conf{
-		API: &API{},
+		API:   &API{},
+		Cache: &Cache{},
 	}
 
 	if err := v.Unmarshal(cfg); err != nil {
@@ -57,6 +58,8 @@ func Configure(logger logrus.FieldLogger, cfgFilePath string) (*Conf, error) {
 func setDefaults(v *viper.Viper) {
 	v.SetDefault("api.host", constants.DefaultAPIHost)
 	v.SetDefault("api.port", constants.DefaultAPIPort)
+	v.SetDefault("cache.cleanupInterval", constants.DefaultCleanupInterval)
+	v.SetDefault("app.stopTimeout", constants.DefaultStopTimeout)
 }
 
 func IsConfNotFoundError(err error) bool {

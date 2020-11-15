@@ -12,12 +12,6 @@ type KeysList struct {
 	Keys []string `json:"keys"`
 }
 
-type KeyValue struct {
-	Key        string `json:"key"`
-	Value      string `json:"value"`
-	Expiration int    `json:"expiration"`
-}
-
 type ErrorBody struct {
 	Error ErrorData `json:"error"`
 }
@@ -25,4 +19,17 @@ type ErrorBody struct {
 type ErrorData struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
+}
+
+type KeyValue struct {
+	Key        string `json:"key"`
+	Value      string `json:"value"`
+	Expiration int    `json:"expiration"`
+}
+
+func (kv KeyValue) Validate() bool {
+	if kv.Key == "" || kv.Value == "" {
+		return false
+	}
+	return true
 }

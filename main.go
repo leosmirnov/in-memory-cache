@@ -1,11 +1,11 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"flag"
 	"fmt"
-	"github.com/leosmirnov/in-memory-cache/pkg/api"
-	"github.com/leosmirnov/in-memory-cache/pkg/conf"
-	"github.com/leosmirnov/in-memory-cache/pkg/storage/inmemory"
+	"github.com/leosmirnov/in-memory-cache/pkg/storage"
 	"net/http"
 	"os"
 	"os/signal"
@@ -13,6 +13,10 @@ import (
 
 	"github.com/sirupsen/logrus"
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
+
+	"github.com/leosmirnov/in-memory-cache/pkg/api"
+	"github.com/leosmirnov/in-memory-cache/pkg/conf"
+	"github.com/leosmirnov/in-memory-cache/pkg/storage/inmemory"
 )
 
 type Service struct {
@@ -21,6 +25,7 @@ type Service struct {
 
 	// Services.
 	apiService *api.API
+	kvService  storage.Service
 
 	// System fields.
 	logger logrus.FieldLogger
@@ -52,8 +57,8 @@ func main() {
 		logger: logger,
 	}
 
-	kvService := inmemory.NewService()
-	s.apiService = api.New(cfg.API, logger, kvService)
+	s.kvService = inmemory.NewService(logger, &cfg.Cache.CleanupInterval)
+	s.apiService = api.New(cfg.API, logger, s.kvService)
 	go s.startAPIService()
 
 	interrupt := make(chan os.Signal, 1)
@@ -61,19 +66,19 @@ func main() {
 	<-interrupt
 	logger.Debug("handle SIGINT, SIGTERM, SIGKILL, SIGQUIT")
 
-	//ctx, cancel := context.WithTimeout(context.Background(), s.StopTimeout())
-	//defer cancel()
-	//go s.Stop(cancel)
-	//
-	//select {
-	//case <-ctx.Done():
-	//	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-	//		logger.Warn("app stopped with problems")
-	//		return
-	//	}
-	//
-	//	logger.Info("app gracefully stopped")
-	//}
+	ctx, cancel := context.WithTimeout(context.Background(), s.cfg.App.StopTimeout)
+	defer cancel()
+	go s.finalize(cancel)
+
+	select {
+	case <-ctx.Done():
+		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+			logger.Warn("app stopped with problems")
+			return
+		}
+
+		logger.Info("app gracefully stopped")
+	}
 
 }
 
@@ -81,4 +86,17 @@ func (s *Service) startAPIService() {
 	if err := s.apiService.Start(); err != nil && err != http.ErrServerClosed {
 		s.logger.WithError(err).Fatal("failed start api service")
 	}
+}
+
+func (s *Service) finalize(cancel context.CancelFunc) {
+	err := s.kvService.Close()
+	if err != nil {
+		s.logger.WithError(err).Error("failed finalize kv service")
+	}
+	err = s.apiService.Stop()
+	if err != nil {
+		s.logger.WithError(err).Error("failed finalize api service")
+	}
+
+	cancel()
 }

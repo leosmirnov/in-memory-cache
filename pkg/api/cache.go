@@ -38,6 +38,11 @@ func (api *API) AddValue(w http.ResponseWriter, r *http.Request, _ httprouter.Pa
 		response.WriteError(api.logger, w, http.StatusBadRequest, fmt.Errorf("unable to decode request body: %s", err))
 		return
 	}
+	if !body.Validate() {
+		response.WriteError(api.logger, w, http.StatusBadRequest, errors.New("key and value must not be empty"))
+		return
+	}
+
 	key := body.Key
 	exp := body.Expiration
 	bts := []byte(body.Value)

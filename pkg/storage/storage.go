@@ -7,4 +7,6 @@ type Service interface {
 	Set(key string, value []byte, exp time.Duration) error
 	GetKeys() []string
 	RemoveKey(key string) error
+
+	Close() error
 }

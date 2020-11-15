@@ -1,0 +1,264 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "In-memory storage API specification",
+    "version": "0.0.1"
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8080",
+      "description": "Local development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "API"
+    },
+    {
+      "name": "Values"
+    },
+    {
+      "name": "Keys"
+    }
+  ],
+  "paths": {
+    "/live": {
+      "get": {
+        "summary": "Make liveness probe",
+        "tags": [
+          "API"
+        ],
+        "responses": {
+          "200": {
+            "description": "Service is alive"
+          }
+        }
+      }
+    },
+    "/api-docs": {
+      "get": {
+        "summary": "Get API documentation as a Swagger",
+        "tags": [
+          "API"
+        ],
+        "responses": {
+          "200": {
+            "description": "API documentation"
+          }
+        }
+      }
+    },
+    "/values": {
+      "post": {
+        "summary": "Add new KV pair",
+        "tags": [
+          "Values"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/CreateValue"
+        },
+        "responses": {
+          "201": {
+            "description": "KV pair was successfully created"
+          },
+          "400": {
+            "$ref": "#/components/responses/CreateResourceBadRequest"
+          },
+          "409": {
+            "$ref": "#/components/responses/CreateResourceConflict"
+          }
+        }
+      }
+    },
+    "/values/{key}": {
+      "get": {
+        "summary": "Get value by key",
+        "tags": [
+          "Values"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/KeyPathVariable"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/GetValue"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove KV pair",
+        "tags": [
+          "Values"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/KeyPathVariable"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "KV pair was successfully deleted"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/keys": {
+      "get": {
+        "summary": "Get all existing keys",
+        "tags": [
+          "Keys"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/GetKeys"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "KeyPathVariable": {
+        "name": "key",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "example": "key"
+        }
+      }
+    },
+    "requestBodies": {
+      "CreateValue": {
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object"
+            },
+            "example": {
+              "key": "key",
+              "value": "value",
+              "expiration": 5
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "GetValue": {
+        "description": "Value data",
+        "content": {
+          "application/json": {
+            "example": {
+              "data": {
+                "value": "string"
+              }
+            }
+          }
+        }
+      },
+      "GetKeys": {
+        "description": "Get all keys",
+        "content": {
+          "application/json": {
+            "example": {
+              "data": {
+                "keys": [
+                  "key1",
+                  "key2"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "InternalServerError": {
+        "description": "HTTP 500 Internal Server Error",
+        "content": {
+          "application/json": {
+            "example": {
+              "errors": {
+                "code": 500,
+                "message": "unable to write response"
+              }
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "HTTP 404 Not Found",
+        "content": {
+          "application/json": {
+            "examples": {
+              "resourceAlreadyExists": {
+                "$ref": "#/components/examples/ResourceNotFound"
+              }
+            }
+          }
+        }
+      },
+      "CreateResourceConflict": {
+        "description": "HTTP 409 Conflict",
+        "content": {
+          "application/json": {
+            "examples": {
+              "resourceAlreadyExists": {
+                "$ref": "#/components/examples/ResourceAlreadyExists"
+              }
+            }
+          }
+        }
+      },
+      "CreateResourceBadRequest": {
+        "description": "HTTP 400 Bad Request",
+        "content": {
+          "application/json": {
+            "examples": {
+              "requestBodyIsInvalid": {
+                "$ref": "#/components/examples/RequestBodyIsInvalid"
+              }
+            }
+          }
+        }
+      }
+    },
+    "examples": {
+      "RequestBodyIsInvalid": {
+        "value": {
+          "errors": {
+            "code": 400,
+            "message": "unable to decode request body"
+          }
+        }
+      },
+      "ResourceAlreadyExists": {
+        "value": {
+          "error": {
+            "code": 409,
+            "message": "key already exists"
+          }
+        }
+      },
+      "ResourceNotFound": {
+        "value": {
+          "error": {
+            "code": 404,
+            "message": "key does not exist"
+          }
+        }
+      }
+    }
+  }
+}
