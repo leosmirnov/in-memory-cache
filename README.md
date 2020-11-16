@@ -17,10 +17,12 @@ By default im-memory cache is deployed on :8080 port. Below you are able to see 
 To create new key, you should use: 
 
 
-`curl --header "Content-Type: application/json" \
+```sh
+curl --header "Content-Type: application/json" \
   --request POST \
-  --data '{"key":"key","value":"string", "expiration": "2m10s"}' \
-  http://localhost:8080/values` 
+  --data '{"key":"key","value":"string", "expiration": "2m10s"}' \  
+  http://localhost:8080/values
+```  
 It is worth mentioning that that `expiration` field represents expiration time in duration. 
 
 
@@ -31,5 +33,7 @@ To get all the existing keys, you should use:
 `curl http://localhost:8080/keys`
 
 To delete value by key, you should use: 
-`curl --request DELETE \
-  http://localhost:8080/values/:key`
+```sh
+curl --request DELETE \
+  http://localhost:8080/values/:key
+```
