@@ -39,10 +39,9 @@ func (api *API) AddValue(w http.ResponseWriter, r *http.Request, _ httprouter.Pa
 	}
 
 	key := body.Key
-	exp := body.Expiration
 	bts := []byte(body.Value)
-
-	err := api.storageSvc.Set(key, bts, time.Duration(exp)*time.Minute)
+	exp, _ := time.ParseDuration(body.Expiration)
+	err := api.storageSvc.Set(key, bts, exp)
 	if err != nil {
 		response.WriteError(api.logger, w, http.StatusConflict, err)
 		return

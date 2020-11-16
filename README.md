@@ -19,9 +19,9 @@ To create new key, you should use:
 
 `curl --header "Content-Type: application/json" \
   --request POST \
-  --data '{"key":"key","value":"string", "expiration": 2}' \
+  --data '{"key":"key","value":"string", "expiration": "2m10s"}' \
   http://localhost:8080/values` 
-It is worth mentioning that that `expiration` field represents expiration time in minutes. 
+It is worth mentioning that that `expiration` field represents expiration time in duration. 
 
 
 To get value by key, you should use: 

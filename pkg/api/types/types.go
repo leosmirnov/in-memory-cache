@@ -24,7 +24,7 @@ type ErrorData struct {
 type KeyValue struct {
 	Key        string `json:"key"`
 	Value      string `json:"value"`
-	Expiration int    `json:"expiration"`
+	Expiration string `json:"expiration"`
 }
 
 func (kv KeyValue) Validate() bool {

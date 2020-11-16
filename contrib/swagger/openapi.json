@@ -150,7 +150,7 @@
             "example": {
               "key": "key",
               "value": "value",
-              "expiration": 5
+              "expiration": "2s"
             }
           }
         }

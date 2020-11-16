@@ -23,21 +23,21 @@ func TestAPI_AddValue(t *testing.T) {
 			expCode: http.StatusCreated,
 			mock: func() *mockKVService {
 				m := new(mockKVService)
-				m.On("Set", "key", []byte("value"), time.Duration(5)*time.Minute).Return(nil)
+				m.On("Set", "key", []byte("value"), 1*time.Second).Return(nil)
 				return m
 			}(),
 			url:  "/values",
-			body: bytes.NewBuffer([]byte(`{"key":"key","value":"value","expiration":5}`)),
+			body: bytes.NewBuffer([]byte(`{"key":"key","value":"value","expiration":"1s"}`)),
 		},
 		{name: "Key was already added",
 			expCode: http.StatusConflict,
 			mock: func() *mockKVService {
 				m := new(mockKVService)
-				m.On("Set", "key", []byte("value"), time.Duration(5)*time.Minute).Return(errors.New(""))
+				m.On("Set", "key", []byte("value"), 1*time.Second).Return(errors.New(""))
 				return m
 			}(),
 			url:  "/values",
-			body: bytes.NewBuffer([]byte(`{"key":"key","value":"value","expiration":5}`)),
+			body: bytes.NewBuffer([]byte(`{"key":"key","value":"value","expiration":"1s"}`)),
 		},
 		{name: "Body is empty",
 			expCode: http.StatusBadRequest,
@@ -46,12 +46,12 @@ func TestAPI_AddValue(t *testing.T) {
 		{name: "Invalid body",
 			expCode: http.StatusBadRequest,
 			url:     "/values",
-			body:    bytes.NewBuffer([]byte(`D":"key","vaue":"value","expsdiration":5}`)),
+			body:    bytes.NewBuffer([]byte(`D":"key","vaue":"value","expsdiration":"1s"}`)),
 		},
 		{name: "Invalid body request",
 			expCode: http.StatusBadRequest,
 			url:     "/values",
-			body:    bytes.NewBuffer([]byte(`{"INVALID":"key","INVALID":"value","expiration":5}`)),
+			body:    bytes.NewBuffer([]byte(`{"INVALID":"key","INVALID":"value","expiration":"2s"}`)),
 		},
 	}
 

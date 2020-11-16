@@ -65,7 +65,6 @@ func (s *Service) Set(key string, value []byte, exp time.Duration) error {
 	if exp <= 0 {
 		exp = defaultExpiration
 	}
-
 	s.cache[key] = item{
 		value:      value,
 		expiration: time.Now().Add(exp).UnixNano(),
